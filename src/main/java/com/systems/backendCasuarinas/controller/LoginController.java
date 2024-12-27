@@ -8,6 +8,7 @@ import com.systems.backendCasuarinas.service.LoginService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,11 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok(loginService.validateLogin(loginRequest));
+    }
+
+    @GetMapping('hola')
+    public ResponseEntity<String> hola() {
+        return ResponseEntity.ok("hola");
     }
     
     @PostMapping("/register")
