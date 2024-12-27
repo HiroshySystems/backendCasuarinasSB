@@ -1,22 +1,42 @@
-FROM maven:3.10.1-openjdk-21
+# Usar la imagen oficial de Eclipse Temurin JDK 21
+FROM eclipse-temurin:21-jdk-jammy as build
 
-WORKDIR /app
+# Establecer el directorio de trabajo
+WORKDIR /workspace/app
 
-# Copiar los archivos del proyecto
-COPY . /app/
+# Copiar el archivo pom.xml y los archivos fuente
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
 
-# Verificar la versión de Java
-RUN java -version
+# Dar permisos de ejecución al mvnw y construir el proyecto
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
 
-# Instalar dependencias y compilar
-RUN mvn clean install
+# Crear la imagen final más ligera
+FROM eclipse-temurin:21-jre-jammy
 
-# Exponer el puerto para la aplicación
+# Información sobre el mantenedor
+LABEL maintainer="your-email@example.com"
+
+# Crear un usuario no root para ejecutar la aplicación
+RUN addgroup --system javauser && adduser --system --ingroup javauser javauser
+
+# Copiar el jar desde la etapa de construcción
+COPY --from=build /workspace/app/target/*.jar app.jar
+
+# Cambiar la propiedad del archivo jar al usuario no root
+RUN chown javauser:javauser app.jar
+
+# Cambiar al usuario no root
+USER javauser
+
+# Exponer el puerto 8080
 EXPOSE 8080
 
-# Ejecutar la aplicación
-CMD ["java", "-jar", "target/backendCasuarinas-0.0.1-SNAPSHOT.jar"]
-
+# Comando para ejecutar la aplicación
+ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 # Define el comando para ejecutar la aplicación
 # CMD ["java", "-jar", "target/backendCasuarinas-0.0.1-SNAPSHOT.jar"]
