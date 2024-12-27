@@ -1,19 +1,28 @@
-# Usa la imagen base de Eclipse Temurin con JDK 21
-FROM eclipse-temurin:21-jdk
+# Usa una imagen base con JDK 21
+FROM eclipse-temurin:21-jdk AS build
 
-# Instala Maven
-RUN apt-get update && apt-get install -y maven
-
-# Define el directorio de trabajo dentro del contenedor
+# Configura el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
 # Copia todos los archivos del proyecto al contenedor
 COPY . .
 
-# Construye el proyecto (sin ejecutar pruebas)
-RUN mvn package -DskipTests
+# Da permisos de ejecución al script Maven Wrapper
+RUN chmod +x mvnw
 
-# Expon el puerto de tu aplicación
+# Construye el proyecto sin ejecutar pruebas
+RUN ./mvnw clean package -DskipTests
+
+# Fase de ejecución
+FROM eclipse-temurin:21-jdk
+
+# Configura el directorio de trabajo para la ejecución
+WORKDIR /app
+
+# Copia el JAR generado desde la fase de build
+COPY --from=build /app/target/*.jar app.jar
+
+# Expone el puerto 8080
 EXPOSE 8080
 
 # Define el comando para ejecutar la aplicación
