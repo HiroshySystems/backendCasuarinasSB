@@ -37,10 +37,11 @@ public class LoginController {
         return ResponseEntity.ok(loginService.validateLogin(loginRequest));
     }
 
-    @GetMapping('hola')
+    @GetMapping("/hola")
     public ResponseEntity<String> hola() {
         return ResponseEntity.ok("hola");
     }
+
     
     @PostMapping("/register")
     public ResponseEntity<ResultAll> createUser(@RequestBody @Valid UserDTO userDTO) {
