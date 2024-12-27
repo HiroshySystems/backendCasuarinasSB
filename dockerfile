@@ -1,29 +1,27 @@
-# Usa una imagen base con JDK 21
-FROM eclipse-temurin:21-jdk AS build
+# Utiliza una imagen base de OpenJDK 21
+FROM openjdk:21-jdk
 
-# Configura el directorio de trabajo dentro del contenedor
+# Define el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copia todos los archivos del proyecto al contenedor
-COPY . .
+# Copia el archivo pom.xml y el archivo mvnw para manejar dependencias
+COPY pom.xml mvnw /app/
 
-# Da permisos de ejecución al script Maven Wrapper
-RUN chmod +x mvnw
+# Copia todo el código fuente al contenedor
+COPY . /app/
 
-# Construye el proyecto sin ejecutar pruebas
-RUN ./mvnw clean package -DskipTests
+# Da permisos de ejecución al script mvnw
+RUN chmod +x ./mvnw
 
-# Fase de ejecución
-FROM eclipse-temurin:21-jdk
+# Ejecuta Maven para descargar dependencias e instalar el proyecto
+RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean install
 
-# Configura el directorio de trabajo para la ejecución
-WORKDIR /app
-
-# Copia el JAR generado desde la fase de build
-COPY --from=build /app/target/*.jar app.jar
-
-# Expone el puerto 8080
+# Expone el puerto que utilizará la aplicación (si es necesario)
 EXPOSE 8080
 
+# Comando para ejecutar la aplicación Spring Boot
+CMD ["./mvnw", "spring-boot:run"]
+
+
 # Define el comando para ejecutar la aplicación
-CMD ["java", "-jar", "target/backendCasuarinas-0.0.1-SNAPSHOT.jar"]
+# CMD ["java", "-jar", "target/backendCasuarinas-0.0.1-SNAPSHOT.jar"]
