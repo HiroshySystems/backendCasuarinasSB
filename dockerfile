@@ -2,7 +2,7 @@ FROM eclipse-temurin:17-jdk-jammy as build
 
 WORKDIR /workspace/app
 
-# Copiar el proyecto
+# Copiar el proyecto www
 COPY . .
 
 # Construir el proyecto
