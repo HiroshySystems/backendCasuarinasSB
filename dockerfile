@@ -1,27 +1,27 @@
-# Utiliza una imagen base de OpenJDK 21
-FROM openjdk:21-jdk
+# Etapa de construcción
+FROM maven:3.9-openjdk-21 as build
 
-# Define el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copia el archivo pom.xml y el archivo mvnw para manejar dependencias
-COPY pom.xml mvnw /app/
-
-# Copia todo el código fuente al contenedor
+# Copiar los archivos del proyecto a la carpeta de trabajo
 COPY . /app/
 
-# Da permisos de ejecución al script mvnw
-RUN chmod +x ./mvnw
+# Ejecutar Maven para instalar dependencias y compilar
+RUN mvn clean install
 
-# Ejecuta Maven para descargar dependencias e instalar el proyecto
-RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean install
+# Etapa de ejecución
+FROM openjdk:21-jdk-slim
 
-# Expone el puerto que utilizará la aplicación (si es necesario)
+WORKDIR /app
+
+# Copiar los archivos compilados desde la etapa de construcción
+COPY --from=build /app/target/backendCasuarinas-0.0.1-SNAPSHOT.jar /app/backendCasuarinas.jar
+
+# Exponer el puerto de la aplicación
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación Spring Boot
-CMD ["./mvnw", "spring-boot:run"]
-
+# Comando para ejecutar la aplicación
+CMD ["java", "-jar", "backendCasuarinas.jar"]
 
 # Define el comando para ejecutar la aplicación
 # CMD ["java", "-jar", "target/backendCasuarinas-0.0.1-SNAPSHOT.jar"]
