@@ -107,7 +107,10 @@
     <configuration>
         <source>21</source>
         <target>21</target>
-        <release>21</release>
+        <compilerArgs>
+            <arg>--enable-preview</arg>
+        </compilerArgs>
+        <forceJavacCompilerUse>true</forceJavacCompilerUse>
     </configuration>
 </plugin>   
             <plugin>
