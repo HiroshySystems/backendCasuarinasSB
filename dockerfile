@@ -1,5 +1,5 @@
-# Usar la imagen oficial de Eclipse Temurin JDK 21
-FROM eclipse-temurin:21-jdk-jammy as build
+# Usar una imagen específica de Maven con JDK 21
+FROM maven:3.9.6-eclipse-temurin-21-jammy AS build
 
 # Establecer el directorio de trabajo
 WORKDIR /workspace/app
@@ -10,9 +10,8 @@ COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
 
-# Dar permisos de ejecución al mvnw y construir el proyecto
-RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+# Construir el proyecto
+RUN mvn clean package -DskipTests
 
 # Crear la imagen final más ligera
 FROM eclipse-temurin:21-jre-jammy
